@@ -1,11 +1,12 @@
 from flask import Flask, json, request, jsonify
 from flaskext.mysql import MySQL
-
+from flask_cors import CORS
 import os
 
 
 mysql = MySQL()
 app = Flask(__name__)
+CORS(app)
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -32,9 +33,7 @@ def insert():
         cursor = conn.cursor()
         cursor.execute(f"insert into usuario(cpf, nome, idade) values ('{cpf}', '{nome}', '{idade}')")
         conn.commit()
-        resp = jsonify({'message': 'Usuário cadastrado!'})
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+        return jsonify({'message': 'Usuário cadastrado!'})
     except Exception as e:
         print(e)
         return json.dumps({'message': 'Um erro inesperado aconteceu!'}), 500
@@ -57,9 +56,7 @@ def getUsers():
         data = cursor.fetchall()
         for item in data:
             result.append({'cpf': item[0], 'nome': item[1], 'idade': item[2]})
-        resp = jsonify(result)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+        return jsonify(result)
     except Exception as e:
         print(e)
         return json.dumps({'message': 'Um erro inesperado aconteceu!'}), 500
