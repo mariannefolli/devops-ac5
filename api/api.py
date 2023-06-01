@@ -1,4 +1,4 @@
-from flask import Flask, json, request
+from flask import Flask, json, request, jsonify
 from flaskext.mysql import MySQL
 
 import os
@@ -10,17 +10,11 @@ app = Flask(__name__)
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'mudar123'
-app.config['MYSQL_DATABASE_DB'] = 'teste'
-app.config['MYSQL_DATABASE_HOST'] = '172.17.0.7'
-#app.config['MYSQL_DATABASE_HOST'] = '172.17.0.7'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_DB'] = 'ac5'
+app.config['MYSQL_DATABASE_PORT'] = 3309
+
 mysql.init_app(app)
-conn = None
-
-
-def checkConnection():
-    global conn
-    if conn is None:
-        conn = mysql.connect()
 
 @app.route('/')
 def main():
@@ -28,32 +22,48 @@ def main():
 
 @app.route('/insert',methods=['POST'])
 def insert():
+    conn = None
+    cursor = None
     try:
-        checkConnection()
         nome = request.form['nome']
         idade = request.form['idade']
         cpf = request.form['cpf']
+        conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(f"insert into usuario(cpf, nome, idade) values ('{cpf}', '{nome}', '{idade}')")
-        return json.dumps({'message': 'Usuário cadastrado!'})
-    except Exception:
+        conn.commit()
+        return jsonify({'message': 'Usuário cadastrado!'})
+    except Exception as e:
+        print(e)
         return json.dumps({'message': 'Um erro inesperado aconteceu!'}), 500
     finally:
-        cursor.close()
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
 
 @app.route('/select',methods=['GET'])
 def getUsers():
+    conn = None
+    cursor = None
+    result = []
     try:
-        checkConnection()
+        conn = mysql.connect()
         cursor = conn.cursor()
+        print('cursor criado')
         cursor.execute("select cpf, nome, idade from usuario")
         data = cursor.fetchall()
-        print(data)
-        return data
-    except Exception:
+        for item in data:
+            result.append({'cpf': item[0], 'nome': item[1], 'idade': item[2]})
+        return jsonify(result)
+    except Exception as e:
+        print(e)
         return json.dumps({'message': 'Um erro inesperado aconteceu!'}), 500
     finally:
-        cursor.close()
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
