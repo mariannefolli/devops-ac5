@@ -10,9 +10,9 @@ app = Flask(__name__)
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'mudar123'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = 'db'
 app.config['MYSQL_DATABASE_DB'] = 'ac5'
-app.config['MYSQL_DATABASE_PORT'] = 3309
+app.config['MYSQL_DATABASE_PORT'] = 3306
 
 mysql.init_app(app)
 
