@@ -25,14 +25,16 @@ def insert():
     conn = None
     cursor = None
     try:
-        nome = request.form['nome']
-        idade = request.form['idade']
-        cpf = request.form['cpf']
+        nome = request.json['nome']
+        idade = request.json['idade']
+        cpf = request.json['cpf']
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(f"insert into usuario(cpf, nome, idade) values ('{cpf}', '{nome}', '{idade}')")
         conn.commit()
-        return jsonify({'message': 'Usuário cadastrado!'})
+        resp = jsonify({'message': 'Usuário cadastrado!'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except Exception as e:
         print(e)
         return json.dumps({'message': 'Um erro inesperado aconteceu!'}), 500
@@ -55,7 +57,9 @@ def getUsers():
         data = cursor.fetchall()
         for item in data:
             result.append({'cpf': item[0], 'nome': item[1], 'idade': item[2]})
-        return jsonify(result)
+        resp = jsonify(result)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     except Exception as e:
         print(e)
         return json.dumps({'message': 'Um erro inesperado aconteceu!'}), 500
