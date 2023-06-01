@@ -1,11 +1,12 @@
 from flask import Flask, json, request, jsonify
 from flaskext.mysql import MySQL
-
+from flask_cors import CORS
 import os
 
 
 mysql = MySQL()
 app = Flask(__name__)
+CORS(app)
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -25,9 +26,9 @@ def insert():
     conn = None
     cursor = None
     try:
-        nome = request.form['nome']
-        idade = request.form['idade']
-        cpf = request.form['cpf']
+        nome = request.json['nome']
+        idade = request.json['idade']
+        cpf = request.json['cpf']
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(f"insert into usuario(cpf, nome, idade) values ('{cpf}', '{nome}', '{idade}')")
